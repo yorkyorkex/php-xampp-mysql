@@ -2,22 +2,31 @@
 include("database.php");
 
 // 檢查表單是否被提交
-if (isset($_POST["submit"])) {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 密碼加密（建議）
-    $hash = password_hash($password, PASSWORD_DEFAULT);
+    // 使用 filter_input 過濾使用者輸入（防止 XSS）
+    $username = filter_input(INPUT_POST, "username", FILTER_SANITIZE_SPECIAL_CHARS);
+    $password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_SPECIAL_CHARS);
 
-    // SQL 語法：插入使用者資料
-    $sql = "INSERT INTO users (user, password)
-            VALUES ('$username', '$hash')";
+    // 驗證輸入是否為空
+    if (empty($username)) {
+        echo "Please enter a username";
+    } elseif (empty($password)) {
+        echo "Please enter a password";
+    } else {
+        // 對密碼加密（hash）
+        $hash = password_hash($password, PASSWORD_DEFAULT);
 
-    try {
-        mysqli_query($conn, $sql);
-        echo "✅ User registered successfully!";
-    } catch (mysqli_sql_exception) {
-        echo "❌ Could not register user!";
+        // 插入資料到資料庫
+        $sql = "INSERT INTO users (user, password)
+                VALUES ('$username', '$hash')";
+
+        try {
+            mysqli_query($conn, $sql);
+            echo "You are now registered!";
+        } catch (mysqli_sql_exception) {
+            echo "Could not register user!";
+        }
     }
 
     mysqli_close($conn);
