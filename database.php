@@ -15,11 +15,11 @@ try {
     );
 } catch (mysqli_sql_exception $e) {
     // 若連線失敗，顯示錯誤訊息
-    echo "Could not connect!";
+    echo "Could not connect! <br>";
 }
 
 // 驗證是否成功連線
 if ($conn) {
-    echo "You are connected!";
+    echo "You are connected! <br>";
 }
 ?>
